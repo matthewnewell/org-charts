@@ -1,0 +1,236 @@
+.person-page__loading {
+  padding: 60px;
+  text-align: center;
+  color: var(--color-text-faint);
+}
+
+.person-page__content {
+  max-width: 720px;
+  margin: 0;
+  padding: 24px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.person-page__back {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.person-page__back:hover {
+  color: var(--color-accent);
+}
+
+.person-page__breadcrumb {
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+}
+
+.person-page__breadcrumb a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.person-page__breadcrumb a:hover {
+  color: var(--color-accent);
+}
+
+.person-page__breadcrumb-sep {
+  margin: 0 6px;
+}
+
+.person-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.person-page__name {
+  margin: 0 0 2px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.person-page__title {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.person-page__dept {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.person-page__reports-to {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+}
+
+.person-page__reports-to a {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.person-page__edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.person-page__edit-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.76rem;
+  color: var(--color-text-faint);
+}
+
+.person-page__edit-form input {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  padding: 8px 10px;
+  font-size: 0.9rem;
+}
+
+.person-page__edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.person-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.person-page__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.person-page__section-header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.person-page__subtree-hint {
+  font-weight: 400;
+  color: var(--color-text-faint);
+}
+
+.person-page__muted {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-faint);
+}
+
+.person-page__add-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.person-page__add-form input {
+  flex: 1 1 140px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  padding: 7px 9px;
+  font-size: 0.85rem;
+}
+
+.person-page__reports-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.person-page__report-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  min-width: 130px;
+  position: relative;
+}
+
+.person-page__report-chip:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.person-page__report-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.person-page__report-title {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+}
+
+.person-page__report-count {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.person-page__delete {
+  align-self: flex-start;
+  margin-top: 10px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-faint);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.person-page__delete:hover:not(:disabled) {
+  color: var(--color-critical);
+}
+
+.person-page__delete:disabled {
+  cursor: default;
+  text-decoration: none;
+}

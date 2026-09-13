@@ -1,0 +1,191 @@
+.org-chart-page {
+  padding: 24px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 100%;
+}
+
+.org-chart-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.org-chart-page__title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.org-chart-page__hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-faint);
+}
+
+.org-chart-page__loading {
+  color: var(--color-text-faint);
+  font-size: 0.9rem;
+}
+
+/* Wide content gets its own horizontal scroller — the page body never scrolls sideways. */
+.org-tree-scroll {
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+
+/* ── the tree: nested <ul>s, connected with plain CSS borders ─────────────────────────────
+   Classic technique — each <li> draws a stub down to a shared horizontal bar via ::before/
+   ::after, and each child <ul> draws the stub up from that bar to its own first row. Redrawn
+   automatically on every expand/collapse since it's just live DOM + sibling selectors. */
+
+.org-tree {
+  display: flex;
+  justify-content: center;
+  padding-top: 28px;
+  margin: 0;
+  list-style: none;
+}
+
+.org-tree--root {
+  padding-top: 0;
+}
+
+.org-tree__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 14px;
+}
+
+.org-tree .org-tree {
+  padding-top: 28px;
+}
+
+/* Stub connecting a non-root node up to the shared horizontal bar. */
+.org-tree:not(.org-tree--root) > .org-tree__item::before {
+  content: '';
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  width: 1px;
+  height: 28px;
+  background: var(--color-border-strong);
+}
+
+/* The horizontal bar joining siblings — drawn on each item's top border, trimmed for the
+   first/last child so it doesn't run off past the outer children. */
+.org-tree:not(.org-tree--root) > .org-tree__item:not(:only-child)::after {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-border-strong);
+}
+
+.org-tree:not(.org-tree--root) > .org-tree__item:only-child::after {
+  display: none;
+}
+
+.org-tree:not(.org-tree--root) > .org-tree__item:first-child:not(:only-child)::after {
+  left: 50%;
+}
+
+.org-tree:not(.org-tree--root) > .org-tree__item:last-child:not(:only-child)::after {
+  right: 50%;
+}
+
+/* ── the card itself ────────────────────────────────────────────────────────────────────── */
+
+.org-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 168px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.org-card--loading {
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  color: var(--color-text-faint);
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.org-card__link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 9px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.org-card__link:hover {
+  background: var(--color-accent-soft);
+}
+
+.org-card__name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.org-card__title {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.org-card__dept {
+  margin-top: 3px;
+  align-self: flex-start;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.org-card__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.org-card__toggle:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+}
+
+.org-card__toggle-arrow {
+  color: var(--color-accent);
+}

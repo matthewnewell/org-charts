@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Org Charts Backend",
+      "runtimeExecutable": "backend/.venv/bin/python",
+      "runtimeArgs": ["app.py"],
+      "cwd": "/home/matthew/org-charts/backend",
+      "port": 8095
+    },
+    {
+      "name": "Org Charts Frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--host", "0.0.0.0"],
+      "cwd": "/home/matthew/org-charts/frontend",
+      "port": 5181
+    }
+  ]
+}
