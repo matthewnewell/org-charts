@@ -97,3 +97,7 @@ def seed_if_empty():
     _add("Chris Bellamy", "Recruiter", "People & Culture", vp_people)
 
     db.session.commit()
+
+    from demo_roster import apply_demo_roster
+
+    apply_demo_roster()

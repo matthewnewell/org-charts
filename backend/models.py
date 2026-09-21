@@ -41,6 +41,11 @@ class Person(db.Model):
     # Free-text label, same convention as project/portfolio elsewhere — not a second hierarchy.
     department = db.Column(db.String(120), nullable=True)
     manager_id = db.Column(db.String(36), db.ForeignKey("person.id"), nullable=True)
+    # The labor supply side: a person with a labor category can be put on a project's request for
+    # that category (Good Plan / Reckon use the same names). Capacity is hours per week. A manager
+    # "owns" the people below them who have a category — those are who they allocate to projects.
+    labor_category = db.Column(db.String(120), nullable=True, index=True)
+    capacity_hours = db.Column(db.Float, nullable=False, default=40.0)
     created_at = db.Column(db.DateTime, default=_now, nullable=False)
 
     manager = db.relationship("Person", remote_side=[id], backref="direct_reports")
@@ -53,6 +58,8 @@ class Person(db.Model):
             "department": self.department,
             "manager_id": self.manager_id,
             "manager_name": self.manager.name if self.manager else None,
+            "labor_category": self.labor_category,
+            "capacity_hours": self.capacity_hours,
         }
         if include_counts:
             d["direct_report_count"] = len(self.direct_reports)

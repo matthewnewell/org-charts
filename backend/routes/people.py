@@ -21,6 +21,50 @@ def list_people():
     return jsonify([p.to_dict() for p in people])
 
 
+def _descendants(person: Person) -> list[Person]:
+    """Everyone below a person in the tree (any depth). Guards against a cycle."""
+    out, seen, stack = [], {person.id}, list(person.direct_reports)
+    while stack:
+        node = stack.pop()
+        if node.id in seen:
+            continue
+        seen.add(node.id)
+        out.append(node)
+        stack.extend(node.direct_reports)
+    return out
+
+
+@bp.get("/roster")
+def roster():
+    """The labor supply: everyone with a labor category, with who they report to. `?manager_id=`
+    narrows to that manager's team (everyone below them, at any depth) — the people a functional
+    manager owns and allocates. `?category=` filters to one labor category."""
+    manager_id = request.args.get("manager_id")
+    if manager_id:
+        boss = Person.query.get_or_404(manager_id)
+        people = [p for p in _descendants(boss) if p.labor_category]
+    else:
+        people = Person.query.filter(Person.labor_category.isnot(None)).all()
+    if category := request.args.get("category"):
+        people = [p for p in people if p.labor_category == category]
+    people.sort(key=lambda p: (p.labor_category or "", p.name))
+    return jsonify([p.to_dict(include_counts=False) for p in people])
+
+
+@bp.get("/managers")
+def managers():
+    """Functional managers: anyone with at least one person below them who has a labor category,
+    and whose OWN direct reports include such people (the immediate owner of a team) — with the
+    size of that team. What Labor Supply & Demand's "whose team" picker lists."""
+    out = []
+    for p in Person.query.order_by(Person.name).all():
+        team = [d for d in _descendants(p) if d.labor_category]
+        direct = [r for r in p.direct_reports if r.labor_category]
+        if direct:
+            out.append({**p.to_dict(include_counts=False), "team_size": len(team), "direct_supply": len(direct)})
+    return jsonify(out)
+
+
 @bp.get("/<person_id>")
 def get_person(person_id):
     p = Person.query.get_or_404(person_id)
@@ -72,6 +116,8 @@ def create_person():
         title=body["title"].strip(),
         department=(body.get("department") or "").strip() or None,
         manager_id=body.get("manager_id") or None,
+        labor_category=(body.get("labor_category") or "").strip() or None,
+        capacity_hours=float(body.get("capacity_hours") or 40.0),
     )
     db.session.add(p)
     db.session.commit()
@@ -106,6 +152,16 @@ def update_person(person_id):
         p.department = (body.get("department") or "").strip() or None
     if "manager_id" in body:
         p.manager_id = new_manager_id
+    if "labor_category" in body:
+        p.labor_category = (body.get("labor_category") or "").strip() or None
+    if "capacity_hours" in body:
+        try:
+            hours = float(body["capacity_hours"])
+        except (TypeError, ValueError):
+            return jsonify({"error": "capacity_hours must be a number"}), 400
+        if hours <= 0 or hours > 80:
+            return jsonify({"error": "capacity_hours must be between 0 and 80"}), 400
+        p.capacity_hours = hours
 
     db.session.commit()
     return jsonify(p.to_dict())

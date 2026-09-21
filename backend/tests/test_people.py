@@ -41,7 +41,7 @@ def test_get_person_includes_ancestors_and_reports(client):
     vp_ops = next(r for r in reports if r["title"] == "VP, Operations")
 
     detail = client.get(f"/api/people/{vp_ops['id']}").get_json()
-    assert detail["ancestors"] == [{"id": ceo_id, "name": "Dana Whitfield", "title": "Chief Executive Officer", "department": "Executive", "manager_id": None, "manager_name": None}]
+    assert detail["ancestors"] == [{"id": ceo_id, "name": "Dana Whitfield", "title": "Chief Executive Officer", "department": "Executive", "manager_id": None, "manager_name": None, "labor_category": None, "capacity_hours": 40.0}]
     assert any(r["title"].startswith("Director, Manufacturing") for r in detail["direct_reports"])
     assert detail["subtree_size"] > 20  # the whole manufacturing branch hangs under here
 
@@ -83,3 +83,27 @@ def test_cannot_make_a_person_report_to_their_own_descendant(client):
 def test_create_requires_name_and_title(client):
     res = client.post("/api/people", json={"name": "No Title"})
     assert res.status_code == 400
+
+
+def test_roster_lists_only_people_with_a_labor_category(client):
+    roster = client.get("/api/people/roster").get_json()
+    assert roster and all(p["labor_category"] for p in roster)
+    machinists = client.get("/api/people/roster?category=Machinist").get_json()
+    assert machinists and {p["labor_category"] for p in machinists} == {"Machinist"}
+
+
+def test_a_managers_team_is_everyone_below_them_with_a_category(client):
+    managers = client.get("/api/people/managers").get_json()
+    alex = next(m for m in managers if m["name"] == "Alex Chen")
+    team = client.get(f"/api/people/roster?manager_id={alex['id']}").get_json()
+    assert len(team) == alex["team_size"] > 10
+    assert all(p["manager_id"] == alex["id"] for p in team)
+    assert client.get(f"/api/people/roster?manager_id={alex['id']}&category=Software Engineer").get_json()
+
+
+def test_category_and_capacity_are_editable_and_capacity_is_bounded(client):
+    p = client.get("/api/people/roster?category=Machinist").get_json()[0]
+    ok = client.put(f"/api/people/{p['id']}", json={"labor_category": "Test Technician", "capacity_hours": 32}).get_json()
+    assert ok["labor_category"] == "Test Technician" and ok["capacity_hours"] == 32
+    assert client.put(f"/api/people/{p['id']}", json={"capacity_hours": 0}).status_code == 400
+    assert client.put(f"/api/people/{p['id']}", json={"capacity_hours": 200}).status_code == 400
