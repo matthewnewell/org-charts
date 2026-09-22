@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from db import db
-from models import Person, ancestor_chain, subtree_size
+from models import FUNCTION_CATEGORIES, Person, ancestor_chain, subtree_size
 
 bp = Blueprint("people", __name__, url_prefix="/api/people")
 
@@ -37,14 +37,24 @@ def _descendants(person: Person) -> list[Person]:
 @bp.get("/roster")
 def roster():
     """The labor supply: everyone with a labor category, with who they report to. `?manager_id=`
-    narrows to that manager's team (everyone below them, at any depth) — the people a functional
-    manager owns and allocates. `?category=` filters to one labor category."""
+    narrows to one manager's reporting-line team (everyone below them, at any depth) — the old
+    "whose team" cut. `?function=` narrows by Function instead (comma-separated for more than
+    one — a Functional Manager can own several, see demo_roster._FUNCTION_MANAGERS) — everyone
+    whose category rolls up into any of them (see models.FUNCTION_CATEGORIES), regardless of who
+    they report to; this is the cut a Functional Manager actually assigns from, since a
+    Function's people aren't necessarily all under one reporting-line manager. `?category=`
+    narrows to one exact category, on top of either."""
     manager_id = request.args.get("manager_id")
     if manager_id:
         boss = Person.query.get_or_404(manager_id)
         people = [p for p in _descendants(boss) if p.labor_category]
     else:
         people = Person.query.filter(Person.labor_category.isnot(None)).all()
+    if function_param := request.args.get("function"):
+        cats: set[str] = set()
+        for name in function_param.split(","):
+            cats.update(FUNCTION_CATEGORIES.get(name.strip(), []))
+        people = [p for p in people if p.labor_category in cats]
     if category := request.args.get("category"):
         people = [p for p in people if p.labor_category == category]
     people.sort(key=lambda p: (p.labor_category or "", p.name))

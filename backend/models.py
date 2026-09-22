@@ -32,6 +32,43 @@ def _now():
     return datetime.now(timezone.utc)
 
 
+# The functional taxonomy: every labor category rolls up into exactly one Function, and every
+# Function has exactly one designated Functional Manager (Function.manager_id below) — the
+# person with assign authority over that pool of people, for staffing purposes. That's a
+# different question from "who reports to whom" (Person.manager_id, the real org tree): a
+# Function's manager doesn't have to be every one of those people's literal manager_id parent —
+# see FUNCTIONS' own doc comment. Categories are a fixed, small vocabulary shared with Reckon
+# (rates) and Good Plan (what a position asks for), so this is a plain constant, the same
+# "fixed list, not a foreign-keyed taxonomy" convention as PHASES/GATES elsewhere in this
+# ecosystem, not a join table.
+FUNCTION_CATEGORIES: dict[str, list[str]] = {
+    "Program Management": ["Program Manager"],
+    "Project Engineer": ["Project Engineer"],
+    "Production Support Engineer": ["Production Support Engineer"],
+    "Systems Engineer": ["Systems Engineer"],
+    "Mechanical Engineer": ["Mechanical Engineer"],
+    "Electrical Engineer": ["Electrical Engineer"],
+    "Software Engineer": ["Software Engineer"],
+    "Mission Assurance": ["Mission Assurance Engineer"],
+    "Manufacturing": [
+        "Machinist",
+        "Composite Technician",
+        "Manufacturing Engineer",
+        "Quality Inspector",
+        "Supply Chain Analyst",
+        "Test Technician",
+    ],
+}
+
+CATEGORY_FUNCTION: dict[str, str] = {
+    cat: function for function, cats in FUNCTION_CATEGORIES.items() for cat in cats
+}
+
+
+def function_for_category(category: str | None) -> str | None:
+    return CATEGORY_FUNCTION.get(category) if category else None
+
+
 class Person(db.Model):
     __tablename__ = "person"
 
@@ -59,11 +96,40 @@ class Person(db.Model):
             "manager_id": self.manager_id,
             "manager_name": self.manager.name if self.manager else None,
             "labor_category": self.labor_category,
+            "function": function_for_category(self.labor_category),
             "capacity_hours": self.capacity_hours,
         }
         if include_counts:
             d["direct_report_count"] = len(self.direct_reports)
         return d
+
+
+class Function(db.Model):
+    """One row per named function (see FUNCTION_CATEGORIES) — just the designated Functional
+    Manager for it. Categories aren't stored here (they're the fixed constant above); this
+    table only answers "who has assign authority over this function's people right now,"
+    which Good Plan and LSD both read live, the same way they already read the roster."""
+
+    __tablename__ = "function"
+
+    id = db.Column(db.String(36), primary_key=True, default=_uuid)
+    name = db.Column(db.String(120), nullable=False, unique=True)
+    manager_id = db.Column(db.String(36), db.ForeignKey("person.id"), nullable=True)
+    created_at = db.Column(db.DateTime, default=_now, nullable=False)
+
+    manager = db.relationship("Person")
+
+    def to_dict(self) -> dict:
+        categories = FUNCTION_CATEGORIES.get(self.name, [])
+        people_count = Person.query.filter(Person.labor_category.in_(categories)).count() if categories else 0
+        return {
+            "id": self.id,
+            "name": self.name,
+            "categories": categories,
+            "manager_id": self.manager_id,
+            "manager_name": self.manager.name if self.manager else None,
+            "people_count": people_count,
+        }
 
 
 def ancestor_chain(person: Person) -> list[Person]:

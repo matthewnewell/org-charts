@@ -41,7 +41,7 @@ def test_get_person_includes_ancestors_and_reports(client):
     vp_ops = next(r for r in reports if r["title"] == "VP, Operations")
 
     detail = client.get(f"/api/people/{vp_ops['id']}").get_json()
-    assert detail["ancestors"] == [{"id": ceo_id, "name": "Dana Whitfield", "title": "Chief Executive Officer", "department": "Executive", "manager_id": None, "manager_name": None, "labor_category": None, "capacity_hours": 40.0}]
+    assert detail["ancestors"] == [{"id": ceo_id, "name": "Dana Whitfield", "title": "Chief Executive Officer", "department": "Executive", "manager_id": None, "manager_name": None, "labor_category": None, "function": None, "capacity_hours": 40.0}]
     assert any(r["title"].startswith("Director, Manufacturing") for r in detail["direct_reports"])
     assert detail["subtree_size"] > 20  # the whole manufacturing branch hangs under here
 
@@ -96,9 +96,11 @@ def test_a_managers_team_is_everyone_below_them_with_a_category(client):
     managers = client.get("/api/people/managers").get_json()
     alex = next(m for m in managers if m["name"] == "Alex Chen")
     team = client.get(f"/api/people/roster?manager_id={alex['id']}").get_json()
-    assert len(team) == alex["team_size"] > 10
+    assert len(team) == alex["team_size"] > 0
     assert all(p["manager_id"] == alex["id"] for p in team)
-    assert client.get(f"/api/people/roster?manager_id={alex['id']}&category=Software Engineer").get_json()
+    # Alex Chen owns Electrical Engineering only now — Software Engineering has its own director
+    # (Derek Voss), one manager per function, see demo_roster.py.
+    assert client.get(f"/api/people/roster?manager_id={alex['id']}&category=Electrical Engineer").get_json()
 
 
 def test_category_and_capacity_are_editable_and_capacity_is_bounded(client):
