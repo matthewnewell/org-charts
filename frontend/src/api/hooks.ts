@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from './client'
-import type { Person, PersonDetail } from './types'
+import type { FunctionRow, Person, PersonDetail } from './types'
 
 export function useRootPeople() {
   return useQuery({
@@ -29,6 +29,17 @@ export function useDepartments() {
   return useQuery({
     queryKey: ['departments'],
     queryFn: () => api.get<string[]>('/people/departments'),
+  })
+}
+
+/** The functional taxonomy — one row per named discipline, each with its designated manager.
+ * A small, rarely-changing list (nine rows), so every card that needs "am I a Function's
+ * manager, and of which one" just checks this once, rather than a per-person lookup. */
+export function useFunctions() {
+  return useQuery({
+    queryKey: ['functions'],
+    queryFn: () => api.get<FunctionRow[]>('/functions'),
+    staleTime: 60_000,
   })
 }
 

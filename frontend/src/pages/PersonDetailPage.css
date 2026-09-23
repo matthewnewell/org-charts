@@ -76,6 +76,33 @@
   text-transform: uppercase;
 }
 
+/* The Function / Functional Manager overlay (see lib/roles.ts) — same badge as the tree's
+   .org-card__role, shown here with the full label since this page has the room for it. */
+.person-page__role {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.person-page__role--fm {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.person-page__role--ic {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.person-page__role--portfolio {
+  background: var(--color-wait-soft);
+  color: var(--color-wait);
+}
+
 .person-page__reports-to {
   margin: 10px 0 0;
   font-size: 0.8rem;

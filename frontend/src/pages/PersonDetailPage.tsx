@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useCreatePerson, useDeletePerson, usePerson, useUpdatePerson } from '../api/hooks'
+import { useCreatePerson, useDeletePerson, useFunctions, usePerson, useUpdatePerson } from '../api/hooks'
+import { roleBadgeFor } from '../lib/roles'
 import './PersonDetailPage.css'
 
 export default function PersonDetailPage() {
   const { personId } = useParams<{ personId: string }>()
   const navigate = useNavigate()
   const { data: person, isLoading } = usePerson(personId)
+  const { data: functions } = useFunctions()
   const update = useUpdatePerson()
   const create = useCreatePerson()
   const del = useDeletePerson()
@@ -17,6 +19,8 @@ export default function PersonDetailPage() {
   const [reportForm, setReportForm] = useState({ name: '', title: '', department: '' })
 
   if (isLoading || !person) return <div className="person-page__loading">Loading…</div>
+
+  const badge = roleBadgeFor(person, functions ?? [])
 
   function startEdit() {
     setForm({ name: person!.name, title: person!.title, department: person!.department ?? '' })
@@ -73,6 +77,7 @@ export default function PersonDetailPage() {
                 <h1 className="person-page__name">{person.name}</h1>
                 <p className="person-page__title">{person.title}</p>
                 {person.department && <span className="person-page__dept">{person.department}</span>}
+                {badge && <span className={`person-page__role person-page__role--${badge.kind}`}>{badge.label}</span>}
                 {person.manager_name && (
                   <p className="person-page__reports-to">
                     Reports to{' '}

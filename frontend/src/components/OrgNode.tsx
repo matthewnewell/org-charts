@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { usePersonReports } from '../api/hooks'
+import { usePersonReports, useFunctions } from '../api/hooks'
+import { roleBadgeFor } from '../lib/roles'
 import type { Person } from '../api/types'
 
 /** One node in the drill-down tree — a card for the person, plus (when expanded) a nested
@@ -11,6 +12,8 @@ export default function OrgNode({ person, defaultExpanded = false }: { person: P
   const [expanded, setExpanded] = useState(defaultExpanded)
   const hasReports = (person.direct_report_count ?? 0) > 0
   const { data: reports, isLoading } = usePersonReports(expanded ? person.id : null)
+  const { data: functions } = useFunctions()
+  const badge = roleBadgeFor(person, functions ?? [])
 
   return (
     <li className="org-tree__item">
@@ -19,6 +22,7 @@ export default function OrgNode({ person, defaultExpanded = false }: { person: P
           <span className="org-card__name">{person.name}</span>
           <span className="org-card__title">{person.title}</span>
           {person.department && <span className="org-card__dept">{person.department}</span>}
+          {badge && <span className={`org-card__role org-card__role--${badge.kind}`} title={badge.label}>{badge.shortLabel}</span>}
         </Link>
         {hasReports && (
           <button

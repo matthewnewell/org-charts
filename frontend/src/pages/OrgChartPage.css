@@ -166,6 +166,39 @@
   letter-spacing: 0.02em;
 }
 
+/* The Function / Functional Manager overlay (see lib/roles.ts) — the one place it's visible in
+   the org chart itself, not just in Labor Supply & Demand and Good Plan, which both already
+   read it live. */
+.org-card__role {
+  margin-top: 3px;
+  align-self: flex-start;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.org-card__role--fm {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.org-card__role--ic {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.org-card__role--portfolio {
+  background: var(--color-wait-soft);
+  color: var(--color-wait);
+}
+
 .org-card__toggle {
   display: flex;
   align-items: center;

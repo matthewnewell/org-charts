@@ -43,7 +43,12 @@ _NEW = [
     ("Tobias Ehrlich", "Program Manager", "Program Management", "Grace Lindholm", "Project Engineer"),
     ("Marcus Webb", "Portfolio Manager", "Program Management", "Grace Lindholm", None),
     # Program Engineering — Alex Chen's functional team
-    ("Alex Chen", "Engineering Functional Manager", "Engineering", "Marcus Reyes", None),
+    # Title mirrors Derek Voss's "Director, X Engineering" pattern below: Alex Chen is only the
+    # Electrical Engineering function's manager (see _FUNCTION_MANAGERS) even though several
+    # other categories still report to him in the raw org tree — a stale "Engineering Functional
+    # Manager" title used to imply he owned all of Engineering, which overclaimed his real,
+    # narrower functional scope.
+    ("Alex Chen", "Director, Electrical Engineering", "Engineering", "Marcus Reyes", None),
     ("Victor Hale", "Systems Engineer II", "Engineering", "Alex Chen", "Systems Engineer"),
     ("Mei Ling Tan", "Systems Engineer I", "Engineering", "Alex Chen", "Systems Engineer"),
     ("Anders Holm", "Systems Engineer II", "Engineering", "Alex Chen", "Systems Engineer"),
@@ -136,11 +141,14 @@ def apply_demo_roster() -> dict:
             db.session.flush()
             by_name[name] = person
             made += 1
-        elif boss:
-            # Re-apply the intended reporting line too, not just category — a demo person who
-            # moved under a new director (see Derek Voss) should actually move on a reseed, not
-            # stay parented to whoever they used to report to.
-            person.manager_id = boss.id
+        else:
+            # Re-apply the intended title and reporting line too, not just category — a demo
+            # person whose title or manager changed in this file (see Alex Chen, Derek Voss)
+            # should actually pick that up on a reseed, not stay stuck with whatever was set
+            # when their row was first created.
+            person.title = title
+            if boss:
+                person.manager_id = boss.id
         person.labor_category = category
     for name, hours in _CAPACITY.items():
         if name in by_name:
