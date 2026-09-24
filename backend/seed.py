@@ -86,6 +86,8 @@ def seed_if_empty():
     dir_capture = _add("Yvonne Achterberg", "Director, Capture Management", "Business Development", vp_bd)
     _add("Simone Laurent", "Proposal Manager", "Business Development", dir_capture)
     _add("Kwame Boateng", "Capture Analyst", "Business Development", dir_capture)
+    # The solution side of a pursuit, beside capture (Conway's Depot's Solutions Architect persona).
+    _add("Theo Brandt", "Solutions Architect", "Business Development", dir_capture)
 
     # ── Finance & Contracts ───────────────────────────────────────────────────
     dir_contracts = _add("Marjorie Aldana", "Director, Contracts", "Finance", vp_fin)

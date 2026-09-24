@@ -1,21 +1,20 @@
+import { AppHeader, tabClass } from '@conways/drawer'
 import { NavLink } from 'react-router-dom'
-import './Nav.css'
 
+/** The ecosystem's shared header (@conways/drawer's AppHeader): back to where you came from in
+ * Conway's Depot, the app and its tabs, and the "viewing as" user menu. */
 export default function Nav() {
   return (
-    <nav className="oc-nav">
-      <NavLink to="/about" className="oc-nav__brand">
-        Org Charts
-      </NavLink>
-      <div className="oc-nav__links">
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) => `oc-nav__link ${isActive ? 'oc-nav__link--active' : ''}`}
-        >
-          Chart
+    <AppHeader
+      brand={
+        <NavLink to="/about" className="ch-brand">
+          Org Charts
         </NavLink>
-      </div>
-    </nav>
+      }
+    >
+      <NavLink to="/" end className={({ isActive }) => tabClass(isActive)}>
+        Chart
+      </NavLink>
+    </AppHeader>
   )
 }
